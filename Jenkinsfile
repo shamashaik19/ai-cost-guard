@@ -2,14 +2,12 @@ pipeline {
     agent any
 
     environment {
-        AWS_ACCESS_KEY_ID     = credentials('aws-creds')
-        AWS_SECRET_ACCESS_KEY = credentials('aws-creds')
-        AWS_DEFAULT_REGION    = 'us-east-1'
+        AWS_DEFAULT_REGION = "us-east-1"
     }
 
     stages {
 
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
                 checkout scm
             }
@@ -17,7 +15,9 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t aws-cost-guard:latest .'
+                sh '''
+                docker build -t aws-cost-guard:latest .
+                '''
             }
         }
 
@@ -25,12 +25,13 @@ pipeline {
             steps {
                 sh '''
                 docker rm -f aws-cost-guard || true
+
                 docker run -d \
+                  --name aws-cost-guard \
                   -p 8000:8000 \
                   -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
                   -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
                   -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION \
-                  --name aws-cost-guard \
                   aws-cost-guard:latest
                 '''
             }
@@ -39,7 +40,7 @@ pipeline {
 
     post {
         success {
-            echo "✅ AWS Cost Guard deployed successfully!"
+            echo "✅ AWS Cost Guard deployed successfully"
             echo "🌐 Access: http://localhost:8000/status"
         }
         failure {
