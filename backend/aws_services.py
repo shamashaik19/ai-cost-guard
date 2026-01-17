@@ -2,7 +2,7 @@ import boto3
 import os
 from botocore.exceptions import ClientError, NoCredentialsError, NoRegionError
 
-AWS_REGION = os.getenv("AWS_DEFAULT_REGION", "us-east-1")
+AWS_REGION = os.getenv("AWS_DEFAULT_REGION", "ap-south-1")
 
 def get_running_services():
     services = {}
