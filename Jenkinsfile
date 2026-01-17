@@ -17,7 +17,9 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t aws-cost-guard:latest .'
+                retry(3) {
+                    sh 'docker build -t aws-cost-guard:latest .'
+                }
             }
         }
 
@@ -44,10 +46,8 @@ pipeline {
 
     post {
         success {
-            echo '✅ AWS Cost Guard deployed successfully!'
-        }
-        failure {
-            echo '❌ Deployment failed. Check logs.'
+            echo '✅ AWS Cost Guard is LIVE!'
+            echo '🌐 http://localhost:8000/status'
         }
     }
 }
