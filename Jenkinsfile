@@ -3,20 +3,23 @@ pipeline {
 
     environment {
         AWS_DEFAULT_REGION = "ap-south-1"
+        IMAGE_NAME = "aws-cost-guard"
+        CONTAINER_NAME = "aws-cost-guard"
     }
 
     stages {
 
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
-                checkout scm
+                git branch: 'master',
+                    url: 'https://github.com/shamashaik19/ai-cost-guard.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 sh '''
-                docker build -t aws-cost-guard:latest .
+                docker build -t $IMAGE_NAME:latest .
                 '''
             }
         }
@@ -30,17 +33,15 @@ pipeline {
                     ]
                 ]) {
                     sh '''
-                    echo "AWS_ACCESS_KEY_ID injected successfully"
-
-                    docker rm -f aws-cost-guard || true
+                    docker rm -f $CONTAINER_NAME || true
 
                     docker run -d \
-                      --name aws-cost-guard \
+                      --name $CONTAINER_NAME \
                       -p 8000:8000 \
                       -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
                       -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
                       -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION \
-                      aws-cost-guard:latest
+                      $IMAGE_NAME:latest
                     '''
                 }
             }

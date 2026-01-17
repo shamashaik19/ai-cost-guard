@@ -1,21 +1,17 @@
 def estimate_cost(services):
-    cost = {}
-    total = 0
-
     pricing = {
         "EC2": 20,
-        "S3": 2,
+        "S3": 5,
         "RDS": 30,
         "Lambda": 5
     }
 
-    for service, price in pricing.items():
-        value = services.get(service)
+    costs = {}
+    total = 0
 
-        if isinstance(value, int):
-            cost[service] = value * price
-            total += cost[service]
-        else:
-            cost[service] = "Not available"
+    for svc, count in services.items():
+        cost = count * pricing.get(svc, 0)
+        costs[svc] = cost
+        total += cost
 
-    return cost, total
+    return costs, total
