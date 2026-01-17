@@ -2,52 +2,48 @@ pipeline {
     agent any
 
     environment {
-        AWS_DEFAULT_REGION = 'us-east-1'
+        AWS_ACCESS_KEY_ID     = credentials('aws-creds')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-creds')
+        AWS_DEFAULT_REGION    = 'us-east-1'
     }
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
-                git credentialsId: 'github-creds',
-                    url: 'https://github.com/shamashaik19/ai-cost-guard.git',
-                    branch: 'master'
+                checkout scm
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                retry(3) {
-                    sh 'docker build -t aws-cost-guard:latest .'
-                }
+                sh 'docker build -t aws-cost-guard:latest .'
             }
         }
 
         stage('Run AWS Cost Guard') {
             steps {
-                withCredentials([
-                    [$class: 'AmazonWebServicesCredentialsBinding',
-                     credentialsId: 'aws-creds']
-                ]) {
-                    sh '''
-                    docker rm -f aws-cost-guard || true
-                    docker run -d \
-                      -p 8000:8000 \
-                      -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
-                      -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
-                      -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION \
-                      --name aws-cost-guard \
-                      aws-cost-guard:latest
-                    '''
-                }
+                sh '''
+                docker rm -f aws-cost-guard || true
+                docker run -d \
+                  -p 8000:8000 \
+                  -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+                  -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+                  -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION \
+                  --name aws-cost-guard \
+                  aws-cost-guard:latest
+                '''
             }
         }
     }
 
     post {
         success {
-            echo '✅ AWS Cost Guard is LIVE!'
-            echo '🌐 http://localhost:8000/status'
+            echo "✅ AWS Cost Guard deployed successfully!"
+            echo "🌐 Access: http://localhost:8000/status"
+        }
+        failure {
+            echo "❌ Deployment failed"
         }
     }
 }
