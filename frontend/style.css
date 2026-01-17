@@ -1,0 +1,14 @@
+body {
+  font-family: Arial;
+  background: linear-gradient(to right, #141e30, #243b55);
+  color: white;
+  text-align: center;
+}
+
+.card {
+  background: #1f2933;
+  margin: 20px auto;
+  padding: 20px;
+  width: 400px;
+  border-radius: 10px;
+}
