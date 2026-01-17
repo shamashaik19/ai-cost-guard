@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from backend.aws_services import get_services
-from cost_estimator import estimate_cost
+from backend.cost_estimator import estimate_cost
 
 app = FastAPI(title="AWS Cost Guard API")
 
